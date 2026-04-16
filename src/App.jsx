@@ -291,6 +291,110 @@ const ScenarioGraph = () => {
   );
 };
 
+const WaterfallGraph = () => {
+  const data = [
+    { label: "Current Baseline", desc: "Estimated ~20% SoW", value: 100, display: "100", isTotal: true },
+    { label: "Social Video", desc: "Recapture prod.", value: 10, display: "+10", isTotal: false },
+    { label: "Brand Systems", desc: "Strategy & exec.", value: 8, display: "+8", isTotal: false },
+    { label: "Creators", desc: "Creator executions", value: 5, display: "+5", isTotal: false },
+    { label: "Media Teams", desc: "Integrated media", value: 2, display: "+2", isTotal: false },
+    { label: "Growth Target", desc: "~25% Incremental", value: 125, display: "125", isTotal: true }
+  ];
+
+  const yMin = 90;
+  const yMax = 135;
+  const chartTop = 80;
+  const chartBottom = 380;
+  const chartHeight = chartBottom - chartTop;
+
+  const getY = (val) => chartBottom - ((val - yMin) / (yMax - yMin)) * chartHeight;
+
+  let currentVal = 100;
+  const bars = data.map((d) => {
+    const startVal = d.isTotal ? yMin : currentVal;
+    const endVal = d.isTotal ? d.value : currentVal + d.value;
+    const yTop = getY(endVal);
+    const yBot = getY(startVal);
+    const h = yBot - yTop;
+    if (!d.isTotal) currentVal += d.value;
+    return { ...d, yTop, yBot, h };
+  });
+
+  return (
+    <div className="w-full mt-4 bg-white border border-neutral-200 rounded-2xl shadow-xl overflow-hidden p-6 md:p-10">
+      <div className="mb-10 text-center">
+         <h3 className="text-2xl md:text-3xl font-editorial font-bold text-black">~60-70% of Growth Expected from Social Video & Brand</h3>
+      </div>
+      
+      <svg viewBox="0 0 900 500" className="w-full h-auto block overflow-visible">
+        <defs>
+          <linearGradient id="totalGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#262626" />
+            <stop offset="100%" stopColor="#000000" />
+          </linearGradient>
+          <linearGradient id="incrGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#ef4444" />
+            <stop offset="100%" stopColor="#b91c1c" />
+          </linearGradient>
+          <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="4" stdDeviation="4" floodColor="#000" floodOpacity="0.08"/>
+          </filter>
+        </defs>
+
+        {/* Y-Axis Grid */}
+        {[130, 120, 110, 100, 90].map(val => (
+          <g key={val}>
+            <line x1="50" y1={getY(val)} x2="860" y2={getY(val)} stroke="#e5e5e5" strokeWidth="2" strokeDasharray={val === 90 ? "none" : "4 4"} />
+            <text x="40" y={getY(val) + 5} fill="#a3a3a3" fontSize="14" fontFamily="monospace" textAnchor="end">{val}</text>
+          </g>
+        ))}
+
+        {/* Connections */}
+        {bars.map((b, i) => {
+          if (i === 0) return null;
+          const prev = bars[i-1];
+          const y = prev.yTop;
+          const x1 = 90 + (i-1)*144;
+          const x2 = 90 + i*144;
+          return <line key={`conn-${i}`} x1={x1} y1={y} x2={x2} y2={y} stroke="#fca5a5" strokeWidth="2" strokeDasharray="4 4" />;
+        })}
+
+        {/* Bars */}
+        {bars.map((b, i) => {
+          const cx = 90 + i*144;
+          const bw = 80;
+          const x = cx - bw/2;
+
+          return (
+            <g key={`bar-${i}`}>
+              <rect x={x} y={b.yTop} width={bw} height={Math.max(b.h, 2)} fill={b.isTotal ? "url(#totalGrad)" : "url(#incrGrad)"} rx="6" filter="url(#shadow)" />
+              
+              {/* Badge */}
+              <rect x={cx - 36} y={b.yTop - 42} width="72" height="32" rx="16" fill={b.isTotal ? "#000" : "#fff"} stroke={b.isTotal ? "none" : "#fca5a5"} strokeWidth="1" filter="url(#shadow)" />
+              <text x={cx} y={b.yTop - 20} fill={b.isTotal ? "#fff" : "#dc2626"} fontSize="18" fontWeight="bold" textAnchor="middle">{b.display}</text>
+              
+              {/* X Axis Labels */}
+              <text x={cx} y={chartBottom + 36} fill="#171717" fontSize="13" fontWeight="bold" textAnchor="middle" style={{ letterSpacing: '0.5px' }}>{b.label.toUpperCase()}</text>
+              <text x={cx} y={chartBottom + 58} fill="#737373" fontSize="14" textAnchor="middle">{b.desc}</text>
+            </g>
+          );
+        })}
+      </svg>
+
+      <div className="mt-8 text-center flex flex-wrap items-center justify-center gap-8 border-t border-neutral-100 pt-6">
+          <div className="flex items-center gap-3">
+             <div className="w-4 h-4 bg-neutral-900 rounded-sm shadow-sm"></div>
+             <span className="text-base text-neutral-600 uppercase tracking-widest font-bold">Indexed Baseline</span>
+          </div>
+          <div className="flex items-center gap-3">
+             <div className="w-4 h-4 bg-red-600 rounded-sm shadow-sm"></div>
+             <span className="text-base text-neutral-600 uppercase tracking-widest font-bold">Conservative Increments</span>
+          </div>
+      </div>
+    </div>
+  );
+};
+
 // --- MAIN APP ---
 
 export default function OgilvyPitchDeck() {
@@ -483,26 +587,26 @@ export default function OgilvyPitchDeck() {
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAwIDEwIEwgNDAgMTAgTSAxMCAwIEwgMTAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgwLDAsMCwwLjA0KSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-60 pointer-events-none" />
 
         <div className="relative z-10 max-w-5xl">
-          <Reveal>
+          <Reveal delay={200}>
             <p className="text-red-600 font-bold tracking-widest uppercase text-sm mb-6 flex items-center gap-4">
               <span className="w-12 h-px bg-red-600"></span>
               Strategic Proposition
             </p>
           </Reveal>
           
-          <Reveal delay={200}>
+          <Reveal delay={400}>
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-editorial font-bold leading-tight mb-8 tracking-tight text-black">
               A new <span className="italic text-red-600">creative, growth,</span> and <span className="italic text-red-600">transformation</span> engine for Ogilvy India.
             </h1>
           </Reveal>
 
-          <Reveal delay={400}>
+          <Reveal delay={600}>
             <p className="text-xl md:text-2xl text-neutral-600 max-w-3xl leading-relaxed mb-12 font-light">
               Introducing <strong className="text-black font-medium">Ogilvy <span className="text-red-600">Social, Influence & Content</span>.</strong> A new unit designed to monetise the new realities of the market and rebuild the agency for a digital-first future.
             </p>
           </Reveal>
 
-          <Reveal delay={600}>
+          <Reveal delay={800}>
             <button onClick={() => document.getElementById('market-shifts').scrollIntoView({behavior: 'smooth'})} className="group flex items-center gap-4 text-white bg-black hover:bg-neutral-800 border border-black hover:border-red-600 px-8 py-4 rounded-full transition-all duration-300">
               <span className="font-bold tracking-widest uppercase text-xs">Enter the future model</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-2 group-hover:text-red-400 transition-all" />
@@ -961,82 +1065,7 @@ export default function OgilvyPitchDeck() {
           </Reveal>
 
           <Reveal delay={200}>
-            <>
-              <div className="bg-white border border-neutral-200 rounded-2xl md:rounded-3xl p-4 sm:p-8 md:p-12 shadow-xl overflow-x-auto relative">
-                {/* Container proportionally sized for mobile scaling */}
-                <div className="min-w-[550px] md:min-w-[900px] h-[300px] md:h-[480px] relative flex items-end justify-between px-4 md:px-8 pb-20 md:pb-24 pt-12 md:pt-20 mt-4 overflow-hidden">
-                  {/* Y-Axis Grid Lines */}
-                  <div className="absolute inset-0 px-4 md:px-8 pb-20 md:pb-24 pt-12 md:pt-20 pointer-events-none flex flex-col justify-between z-0">
-                    {[130, 120, 110, 100, 90].map((val, i) => (
-                      <div key={i} className="w-full border-t border-neutral-100 relative transition-all duration-500 hover:border-neutral-200 overflow-hidden">
-                        {val >= 90 && <span className="absolute -left-2 md:-left-6 -top-3 text-[10px] md:text-xs text-neutral-400 font-mono">{val}</span>}
-                      </div>
-                    ))}
-                  </div>
-                  {/* Waterfall Bars */}
-                  {[
-                    { label: "Current Baseline", desc: "Estimated ~20% SoW", value: 100, display: "100", height: 25, bottom: 0, color: "bg-neutral-800", isTotal: true },
-                    { label: "Social Video", desc: "Recapture prod. leakage", value: 10, display: "+10", height: 25, bottom: 25, color: "bg-red-600", isTotal: false },
-                    { label: "Brand Systems", desc: "Strategy & execution", value: 8, display: "+8", height: 20, bottom: 50, color: "bg-red-600", isTotal: false },
-                    { label: "Creators", desc: "Creator executions", value: 5, display: "+5", height: 12.5, bottom: 70, color: "bg-red-600", isTotal: false },
-                    { label: "Media Teams", desc: "Integrated media teams", value: 2, display: "+2", height: 5, bottom: 82.5, color: "bg-red-600", isTotal: false },
-                    { label: "Growth Target", desc: "~25% Incremental", value: 125, display: "125", height: 87.5, bottom: 0, color: "bg-black", isTotal: true }
-                  ].map((bar, idx) => (
-                    <div key={idx} className="relative flex flex-col items-center w-16 sm:w-20 md:w-32 lg:w-36 group z-10 cursor-default">
-                      {/* Scaled Value Label Above Bar */}
-                      <div 
-                        className="absolute w-full text-center transition-all duration-500 ease-out group-hover:-translate-y-2 md:group-hover:-translate-y-3"
-                        style={{ bottom: `${bar.bottom + bar.height}%`, paddingBottom: '16px' }}
-                      >
-                        <span className={`text-xl sm:text-2xl md:text-3xl lg:text-4xl font-editorial font-bold transition-all duration-300 ${bar.isTotal ? 'text-black group-hover:drop-shadow-md' : 'text-red-600 group-hover:text-red-500 group-hover:drop-shadow-[0_4px_8px_rgba(220,38,38,0.3)]'}`}>
-                          {bar.display}
-                        </span>
-                      </div>
-                      {/* Solid Bar */}
-                      <div 
-                        className={`w-full ${bar.color} rounded-t-sm shadow-sm transition-all duration-500 relative group-hover:brightness-110 group-hover:shadow-[0_0_20px_rgba(220,38,38,0.2)] origin-bottom ${!bar.isTotal && 'hover:scale-y-[1.03] opacity-90 hover:opacity-100'}`}
-                        style={{ 
-                          height: `${bar.height}%`, 
-                          marginBottom: `${bar.bottom}%` 
-                        }}
-                      >
-                        {/* Responsive horizontal dashed guide line to visually connect steps */}
-                        {!bar.isTotal && (
-                          <div className="absolute top-0 left-0 w-full border-t-2 border-dashed border-red-200/60 z-[-1] opacity-50 group-hover:opacity-100 transition-opacity duration-300"></div>
-                        )}
-                        {bar.isTotal && idx === 0 && (
-                          <div className="absolute top-0 left-0 w-full border-t-2 border-dashed border-neutral-300 z-[-1] opacity-50"></div>
-                        )}
-                        {/* Active hover indicator inside bar */}
-                        {!bar.isTotal && (
-                          <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        )}
-                      </div>
-                      {/* X-Axis Scaled Premium Info Card */}
-                      <div className="absolute -bottom-16 md:-bottom-24 text-center w-[130%] md:w-[110%] bg-neutral-50 border border-neutral-200 p-2 md:p-3 rounded-lg md:rounded-xl shadow-sm transition-all duration-300 ease-out group-hover:border-red-300 group-hover:bg-white group-hover:shadow-lg group-hover:-translate-y-1 md:group-hover:-translate-y-2 z-20">
-                        <span className={`text-[8px] sm:text-[9px] md:text-[10px] lg:text-xs font-bold uppercase tracking-wider block mb-0.5 md:mb-1 transition-colors ${bar.isTotal ? 'text-black' : 'text-red-700'}`}>
-                          {bar.label}
-                        </span>
-                        <span className="text-[8px] md:text-[11px] text-neutral-500 font-medium leading-tight block group-hover:text-neutral-700 transition-colors">
-                          {bar.desc}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                {/* Legend */}
-                <div className="mt-28 text-center flex flex-wrap items-center justify-center gap-8 border-t border-neutral-100 pt-8">
-                  <div className="flex items-center gap-3">
-                    <div className="w-4 h-4 bg-neutral-800 rounded-sm shadow-sm"></div>
-                    <span className="text-sm text-neutral-600 uppercase tracking-widest font-bold">Indexed Baseline</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-4 h-4 bg-red-600 rounded-sm shadow-sm opacity-90"></div>
-                    <span className="text-sm text-neutral-600 uppercase tracking-widest font-bold">Conservative Increments</span>
-                  </div>
-                </div>
-              </div>
-            </>
+            <WaterfallGraph />
           </Reveal>
         </div>
       </section>
@@ -1228,45 +1257,33 @@ export default function OgilvyPitchDeck() {
             </div>
           </Reveal>
 
-          <div className="bg-white border border-neutral-200 rounded-3xl p-6 md:p-12 shadow-xl relative overflow-hidden">
-             {/* Decorative top bar */}
-             <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-red-600 to-red-900" />
-             
-             <div className="space-y-4">
-                {goals.map((goal, idx) => (
-                  <Reveal key={idx} delay={200 + (idx * 100)} direction="up">
-                    <div className="group flex flex-col md:flex-row md:items-center justify-between p-4 sm:p-6 md:p-8 rounded-2xl border border-neutral-100 transition-all duration-300 cursor-default relative overflow-hidden gap-4 md:gap-6
-                       bg-neutral-50/30 hover:bg-neutral-50/80
-                       hover:border-red-300 hover:shadow-[0_0_20px_rgba(220,38,38,0.1)]
-                       after:absolute after:inset-0 after:bg-gradient-to-r after:from-red-500/0 after:via-red-500/0 after:to-red-500/0 after:hover:from-red-500/[0.03] after:hover:via-red-500/[0.05] after:hover:to-red-500/0 after:pointer-events-none after:transition-all after:duration-500">
-                       
-                       <div className="flex items-start gap-3 md:gap-4 relative z-10 flex-1">
-                          <div className="w-2 h-2 md:w-2.5 md:h-2.5 rounded-full bg-neutral-300 group-hover:bg-red-500 transition-all duration-300 mt-2 md:mt-2.5 shrink-0 group-hover:scale-125" />
-                          <div className="flex-1">
-                             <span className="text-lg sm:text-xl md:text-2xl font-bold text-black group-hover:text-red-600 transition-colors duration-300 block mb-1 md:mb-2">
-                               {goal.item}
-                             </span>
-                             <p className="text-neutral-500 text-sm md:text-base leading-relaxed group-hover:text-neutral-700 transition-colors duration-300">
-                               {goal.desc}
-                             </p>
-                          </div>
-                       </div>
-
-                       <div className="relative z-10 flex items-center gap-4 md:gap-6 md:shrink-0 md:pl-6 md:border-l border-neutral-200 group-hover:border-red-300 transition-colors duration-300">
-                          <span className="text-2xl sm:text-3xl md:text-4xl font-editorial font-bold text-neutral-300 group-hover:text-red-600 transition-all duration-300 group-hover:scale-110 origin-center">
-                            {goal.weight}
-                          </span>
-                       </div>
-                    </div>
-                  </Reveal>
-                ))}
+          <Reveal delay={200}>
+             <div className="bg-white border border-neutral-200 rounded-2xl overflow-hidden shadow-sm">
+                <div className="overflow-x-auto">
+                   <table className="w-full elegant-table">
+                      <thead>
+                         <tr>
+                            <th className="w-[25%] md:w-[20%]">Goal</th>
+                            <th className="w-[50%] md:w-[60%]">Responsibilities</th>
+                            <th className="w-[25%] md:w-[20%]">Weightage</th>
+                         </tr>
+                      </thead>
+                      <tbody>
+                         {goals.map((goal, idx) => (
+                           <tr key={idx} className="hover:bg-neutral-50 transition-colors">
+                              <td className="font-bold text-black text-base md:text-lg">{goal.item}</td>
+                              <td className="text-neutral-600 leading-relaxed text-sm md:text-base">{goal.desc}</td>
+                              <td className="text-2xl md:text-3xl font-editorial font-bold text-red-600">{goal.weight}</td>
+                           </tr>
+                         ))}
+                      </tbody>
+                   </table>
+                </div>
              </div>
-          </div>
+          </Reveal>
         </div>
       </section>
 
     </div>
   );
 }
- 
- 
