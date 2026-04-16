@@ -961,19 +961,18 @@ export default function OgilvyPitchDeck() {
           </Reveal>
 
           <Reveal delay={200}>
-            <div className="bg-white border border-neutral-200 rounded-2xl md:rounded-3xl p-4 sm:p-8 md:p-12 shadow-xl overflow-x-auto relative">
-               {/* Container proportionally sized for mobile scaling */}
-               <div className="min-w-[550px] md:min-w-[900px] h-[300px] md:h-[480px] relative flex items-end justify-between px-4 md:px-8 pb-20 md:pb-24 pt-12 md:pt-20 mt-4 overflow-visible">
-                  
+            <>
+              <div className="bg-white border border-neutral-200 rounded-2xl md:rounded-3xl p-4 sm:p-8 md:p-12 shadow-xl overflow-x-auto relative">
+                {/* Container proportionally sized for mobile scaling */}
+                <div className="min-w-[550px] md:min-w-[900px] h-[300px] md:h-[480px] relative flex items-end justify-between px-4 md:px-8 pb-20 md:pb-24 pt-12 md:pt-20 mt-4 overflow-hidden">
                   {/* Y-Axis Grid Lines */}
                   <div className="absolute inset-0 px-4 md:px-8 pb-20 md:pb-24 pt-12 md:pt-20 pointer-events-none flex flex-col justify-between z-0">
-                     {[130, 120, 110, 100, 90].map((val, i) => (
-                        <div key={i} className="w-full border-t border-neutral-100 relative transition-all duration-500 hover:border-neutral-200">
-                           {val >= 90 && <span className="absolute -left-2 md:-left-6 -top-3 text-[10px] md:text-xs text-neutral-400 font-mono">{val}</span>}
-                        </div>
-                     ))}
+                    {[130, 120, 110, 100, 90].map((val, i) => (
+                      <div key={i} className="w-full border-t border-neutral-100 relative transition-all duration-500 hover:border-neutral-200 overflow-hidden">
+                        {val >= 90 && <span className="absolute -left-2 md:-left-6 -top-3 text-[10px] md:text-xs text-neutral-400 font-mono">{val}</span>}
+                      </div>
+                    ))}
                   </div>
-
                   {/* Waterfall Bars */}
                   {[
                     { label: "Current Baseline", desc: "Estimated ~20% SoW", value: 100, display: "100", height: 25, bottom: 0, color: "bg-neutral-800", isTotal: true },
@@ -983,65 +982,61 @@ export default function OgilvyPitchDeck() {
                     { label: "Media Teams", desc: "Integrated media teams", value: 2, display: "+2", height: 5, bottom: 82.5, color: "bg-red-600", isTotal: false },
                     { label: "Growth Target", desc: "~25% Incremental", value: 125, display: "125", height: 87.5, bottom: 0, color: "bg-black", isTotal: true }
                   ].map((bar, idx) => (
-                     <div key={idx} className="relative flex flex-col items-center w-16 sm:w-20 md:w-32 lg:w-36 group z-10 cursor-default">
-                        
-                        {/* Scaled Value Label Above Bar */}
-                        <div 
-                           className="absolute w-full text-center transition-all duration-500 ease-out group-hover:-translate-y-2 md:group-hover:-translate-y-3"
-                           style={{ bottom: `${bar.bottom + bar.height}%`, paddingBottom: '16px' }}
-                        >
-                           <span className={`text-xl sm:text-2xl md:text-3xl lg:text-4xl font-editorial font-bold transition-all duration-300 ${bar.isTotal ? 'text-black group-hover:drop-shadow-md' : 'text-red-600 group-hover:text-red-500 group-hover:drop-shadow-[0_4px_8px_rgba(220,38,38,0.3)]'}`}>
-                              {bar.display}
-                           </span>
-                        </div>
-
-                        {/* Solid Bar */}
-                        <div 
-                           className={`w-full ${bar.color} rounded-t-sm shadow-sm transition-all duration-500 relative group-hover:brightness-110 group-hover:shadow-[0_0_20px_rgba(220,38,38,0.2)] origin-bottom ${!bar.isTotal && 'hover:scale-y-[1.03] opacity-90 hover:opacity-100'}`}
-                           style={{ 
-                              height: `${bar.height}%`, 
-                              marginBottom: `${bar.bottom}%` 
-                           }}
-                        >
-                           {/* Infinite horizontal dashed guide line to visually connect steps */}
-                           {!bar.isTotal && (
-                              <div className="absolute top-0 left-0 w-[550px] md:w-[900px] border-t-2 border-dashed border-red-200/60 z-[-1] opacity-50 group-hover:opacity-100 transition-opacity duration-300"></div>
-                           )}
-                           {bar.isTotal && idx === 0 && (
-                              <div className="absolute top-0 left-0 w-[550px] md:w-[900px] border-t-2 border-dashed border-neutral-300 z-[-1] opacity-50"></div>
-                           )}
-                           
-                           {/* Active hover indicator inside bar */}
-                           {!bar.isTotal && (
-                              <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                           )}
-                        </div>
-
-                        {/* X-Axis Scaled Premium Info Card */}
-                        <div className="absolute -bottom-16 md:-bottom-24 text-center w-[130%] md:w-[110%] bg-neutral-50 border border-neutral-200 p-2 md:p-3 rounded-lg md:rounded-xl shadow-sm transition-all duration-300 ease-out group-hover:border-red-300 group-hover:bg-white group-hover:shadow-lg group-hover:-translate-y-1 md:group-hover:-translate-y-2 z-20">
-                           <span className={`text-[8px] sm:text-[9px] md:text-[10px] lg:text-xs font-bold uppercase tracking-wider block mb-0.5 md:mb-1 transition-colors ${bar.isTotal ? 'text-black' : 'text-red-700'}`}>
-                              {bar.label}
-                           </span>
-                           <span className="text-[8px] md:text-[11px] text-neutral-500 font-medium leading-tight block group-hover:text-neutral-700 transition-colors">
-                              {bar.desc}
-                           </span>
-                        </div>
-                     </div>
+                    <div key={idx} className="relative flex flex-col items-center w-16 sm:w-20 md:w-32 lg:w-36 group z-10 cursor-default">
+                      {/* Scaled Value Label Above Bar */}
+                      <div 
+                        className="absolute w-full text-center transition-all duration-500 ease-out group-hover:-translate-y-2 md:group-hover:-translate-y-3"
+                        style={{ bottom: `${bar.bottom + bar.height}%`, paddingBottom: '16px' }}
+                      >
+                        <span className={`text-xl sm:text-2xl md:text-3xl lg:text-4xl font-editorial font-bold transition-all duration-300 ${bar.isTotal ? 'text-black group-hover:drop-shadow-md' : 'text-red-600 group-hover:text-red-500 group-hover:drop-shadow-[0_4px_8px_rgba(220,38,38,0.3)]'}`}>
+                          {bar.display}
+                        </span>
+                      </div>
+                      {/* Solid Bar */}
+                      <div 
+                        className={`w-full ${bar.color} rounded-t-sm shadow-sm transition-all duration-500 relative group-hover:brightness-110 group-hover:shadow-[0_0_20px_rgba(220,38,38,0.2)] origin-bottom ${!bar.isTotal && 'hover:scale-y-[1.03] opacity-90 hover:opacity-100'}`}
+                        style={{ 
+                          height: `${bar.height}%`, 
+                          marginBottom: `${bar.bottom}%` 
+                        }}
+                      >
+                        {/* Responsive horizontal dashed guide line to visually connect steps */}
+                        {!bar.isTotal && (
+                          <div className="absolute top-0 left-0 w-full border-t-2 border-dashed border-red-200/60 z-[-1] opacity-50 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        )}
+                        {bar.isTotal && idx === 0 && (
+                          <div className="absolute top-0 left-0 w-full border-t-2 border-dashed border-neutral-300 z-[-1] opacity-50"></div>
+                        )}
+                        {/* Active hover indicator inside bar */}
+                        {!bar.isTotal && (
+                          <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        )}
+                      </div>
+                      {/* X-Axis Scaled Premium Info Card */}
+                      <div className="absolute -bottom-16 md:-bottom-24 text-center w-[130%] md:w-[110%] bg-neutral-50 border border-neutral-200 p-2 md:p-3 rounded-lg md:rounded-xl shadow-sm transition-all duration-300 ease-out group-hover:border-red-300 group-hover:bg-white group-hover:shadow-lg group-hover:-translate-y-1 md:group-hover:-translate-y-2 z-20">
+                        <span className={`text-[8px] sm:text-[9px] md:text-[10px] lg:text-xs font-bold uppercase tracking-wider block mb-0.5 md:mb-1 transition-colors ${bar.isTotal ? 'text-black' : 'text-red-700'}`}>
+                          {bar.label}
+                        </span>
+                        <span className="text-[8px] md:text-[11px] text-neutral-500 font-medium leading-tight block group-hover:text-neutral-700 transition-colors">
+                          {bar.desc}
+                        </span>
+                      </div>
+                    </div>
                   ))}
-               </div>
-               
-               {/* Legend */}
-               <div className="mt-28 text-center flex flex-wrap items-center justify-center gap-8 border-t border-neutral-100 pt-8">
+                </div>
+                {/* Legend */}
+                <div className="mt-28 text-center flex flex-wrap items-center justify-center gap-8 border-t border-neutral-100 pt-8">
                   <div className="flex items-center gap-3">
-                     <div className="w-4 h-4 bg-neutral-800 rounded-sm shadow-sm"></div>
-                     <span className="text-sm text-neutral-600 uppercase tracking-widest font-bold">Indexed Baseline</span>
+                    <div className="w-4 h-4 bg-neutral-800 rounded-sm shadow-sm"></div>
+                    <span className="text-sm text-neutral-600 uppercase tracking-widest font-bold">Indexed Baseline</span>
                   </div>
                   <div className="flex items-center gap-3">
-                     <div className="w-4 h-4 bg-red-600 rounded-sm shadow-sm opacity-90"></div>
-                     <span className="text-sm text-neutral-600 uppercase tracking-widest font-bold">Conservative Increments</span>
+                    <div className="w-4 h-4 bg-red-600 rounded-sm shadow-sm opacity-90"></div>
+                    <span className="text-sm text-neutral-600 uppercase tracking-widest font-bold">Conservative Increments</span>
                   </div>
-               </div>
-            </div>
+                </div>
+              </div>
+            </>
           </Reveal>
         </div>
       </section>
