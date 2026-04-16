@@ -16,7 +16,9 @@ import {
   Network,
   Search,
   PieChart,
-  BarChart
+  BarChart,
+  CheckCircle2,
+  MousePointerClick
 } from 'lucide-react';
 
 // --- CUSTOM HOOKS ---
@@ -292,19 +294,21 @@ const ScenarioGraph = () => {
 };
 
 const WaterfallGraph = () => {
+  const [activeBar, setActiveBar] = useState(null);
+
   const data = [
-    { label: "Current Baseline", desc: "Estimated ~20% SoW", value: 100, display: "100", isTotal: true },
-    { label: "Social Video", desc: "Recapture prod.", value: 10, display: "+10", isTotal: false },
-    { label: "Brand Systems", desc: "Strategy & exec.", value: 8, display: "+8", isTotal: false },
-    { label: "Creators", desc: "Creator executions", value: 5, display: "+5", isTotal: false },
-    { label: "Media Teams", desc: "Integrated media", value: 2, display: "+2", isTotal: false },
-    { label: "Growth Target", desc: "~25% Incremental", value: 125, display: "125", isTotal: true }
+    { label: "Current Baseline", shortLabel: "BASELINE", desc: "Estimated ~20% Share of Wallet in current Ogilvy top tier accounts.", value: 100, display: "100", isTotal: true },
+    { label: "Social Video", shortLabel: "VIDEO", desc: "Recapturing production leakage across Youtube, Reels, and high-volume creator content.", value: 10, display: "+10", isTotal: false },
+    { label: "Brand Systems", shortLabel: "BRAND", desc: "Platform-native brand strategy, creative execution, and integrated delivery.", value: 8, display: "+8", isTotal: false },
+    { label: "Creators", shortLabel: "CREATORS", desc: "Direct brand and sales growth using platform-specific creator executions.", value: 5, display: "+5", isTotal: false },
+    { label: "Media Teams", shortLabel: "MEDIA", desc: "Integrated media teams-as-a-service utilizing deep platform partnerships.", value: 2, display: "+2", isTotal: false },
+    { label: "Growth Target", shortLabel: "TARGET", desc: "Conservative ~25% incremental growth target established for Y1.", value: 125, display: "125", isTotal: true }
   ];
 
   const yMin = 90;
   const yMax = 135;
   const chartTop = 80;
-  const chartBottom = 380;
+  const chartBottom = 360;
   const chartHeight = chartBottom - chartTop;
 
   const getY = (val) => chartBottom - ((val - yMin) / (yMax - yMin)) * chartHeight;
@@ -321,12 +325,13 @@ const WaterfallGraph = () => {
   });
 
   return (
-    <div className="w-full mt-4 bg-white border border-neutral-200 rounded-2xl shadow-xl overflow-hidden p-6 md:p-10">
-      <div className="mb-10 text-center">
+    <div className="w-full mt-4 bg-white border border-neutral-200 rounded-2xl shadow-xl overflow-hidden p-4 md:p-10">
+      <div className="mb-6 md:mb-10 text-center px-2">
          <h3 className="text-2xl md:text-3xl font-editorial font-bold text-black">~60-70% of Growth Expected from Social Video & Brand</h3>
       </div>
       
-      <svg viewBox="0 0 900 500" className="w-full h-auto block overflow-visible">
+      {/* SVG Image (Now completely responsive with large, readable short-labels) */}
+      <svg viewBox="0 0 900 420" className="w-full h-auto block overflow-visible select-none">
         <defs>
           <linearGradient id="totalGrad" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#262626" />
@@ -345,7 +350,7 @@ const WaterfallGraph = () => {
         {[130, 120, 110, 100, 90].map(val => (
           <g key={val}>
             <line x1="50" y1={getY(val)} x2="860" y2={getY(val)} stroke="#e5e5e5" strokeWidth="2" strokeDasharray={val === 90 ? "none" : "4 4"} />
-            <text x="40" y={getY(val) + 5} fill="#a3a3a3" fontSize="14" fontFamily="monospace" textAnchor="end">{val}</text>
+            <text x="40" y={getY(val) + 6} fill="#a3a3a3" fontSize="16" fontFamily="monospace" textAnchor="end">{val}</text>
           </g>
         ))}
 
@@ -359,36 +364,67 @@ const WaterfallGraph = () => {
           return <line key={`conn-${i}`} x1={x1} y1={y} x2={x2} y2={y} stroke="#fca5a5" strokeWidth="2" strokeDasharray="4 4" />;
         })}
 
-        {/* Bars */}
+        {/* Bars (Interactive Wrappers) */}
         {bars.map((b, i) => {
           const cx = 90 + i*144;
           const bw = 80;
           const x = cx - bw/2;
+          const isActive = activeBar === i;
+          const isFaded = activeBar !== null && activeBar !== i;
 
           return (
-            <g key={`bar-${i}`}>
+            <g 
+               key={`bar-${i}`} 
+               onMouseEnter={() => setActiveBar(i)}
+               onMouseLeave={() => setActiveBar(null)}
+               onClick={() => setActiveBar(isActive ? null : i)}
+               className="cursor-pointer transition-opacity duration-300"
+               style={{ opacity: isFaded ? 0.3 : 1 }}
+            >
+              {/* Invisible fat hit-area for easier mobile tapping */}
+              <rect x={cx - 60} y={chartTop} width={120} height={chartBottom - chartTop + 60} fill="transparent" />
+
+              {/* The Visual Bar */}
               <rect x={x} y={b.yTop} width={bw} height={Math.max(b.h, 2)} fill={b.isTotal ? "url(#totalGrad)" : "url(#incrGrad)"} rx="6" filter="url(#shadow)" />
               
               {/* Badge */}
-              <rect x={cx - 36} y={b.yTop - 42} width="72" height="32" rx="16" fill={b.isTotal ? "#000" : "#fff"} stroke={b.isTotal ? "none" : "#fca5a5"} strokeWidth="1" filter="url(#shadow)" />
-              <text x={cx} y={b.yTop - 20} fill={b.isTotal ? "#fff" : "#dc2626"} fontSize="18" fontWeight="bold" textAnchor="middle">{b.display}</text>
+              <rect x={cx - 40} y={b.yTop - 46} width="80" height="36" rx="18" fill={b.isTotal ? "#000" : "#fff"} stroke={b.isTotal ? "none" : "#fca5a5"} strokeWidth="1" filter="url(#shadow)" />
+              <text x={cx} y={b.yTop - 22} fill={b.isTotal ? "#fff" : "#dc2626"} fontSize="20" fontWeight="bold" textAnchor="middle">{b.display}</text>
               
-              {/* X Axis Labels */}
-              <text x={cx} y={chartBottom + 36} fill="#171717" fontSize="13" fontWeight="bold" textAnchor="middle" style={{ letterSpacing: '0.5px' }}>{b.label.toUpperCase()}</text>
-              <text x={cx} y={chartBottom + 58} fill="#737373" fontSize="14" textAnchor="middle">{b.desc}</text>
+              {/* X Axis Short Labels (Scaled massively for mobile legibility) */}
+              <text x={cx} y={chartBottom + 36} fill={isActive ? (b.isTotal ? "#000" : "#dc2626") : "#171717"} fontSize="16" fontWeight="bold" textAnchor="middle" style={{ letterSpacing: '1px' }}>
+                 {b.shortLabel}
+              </text>
             </g>
           );
         })}
       </svg>
 
-      <div className="mt-8 text-center flex flex-wrap items-center justify-center gap-8 border-t border-neutral-100 pt-6">
+      {/* Dynamic Interaction Box (Solves the unreadable description text on mobile) */}
+      <div className="mt-4 md:mt-8 min-h-[90px] md:min-h-[100px] bg-neutral-50 rounded-xl p-4 md:p-6 flex items-center justify-center border border-neutral-200 transition-all shadow-inner">
+         {activeBar !== null ? (
+             <div className="text-center animate-fade-in px-2">
+                <h4 className="text-base md:text-xl font-bold text-black mb-1">
+                   {data[activeBar].label} <span className={data[activeBar].isTotal ? "text-black" : "text-red-600"}>{data[activeBar].display}</span>
+                </h4>
+                <p className="text-neutral-600 text-xs md:text-base leading-relaxed">{data[activeBar].desc}</p>
+             </div>
+         ) : (
+             <p className="text-neutral-400 text-xs md:text-sm tracking-widest uppercase font-bold flex items-center gap-2">
+                <MousePointerClick className="w-4 h-4 md:w-5 md:h-5"/> Tap or hover a column for details
+             </p>
+         )}
+      </div>
+
+      {/* Legend */}
+      <div className="mt-6 md:mt-8 text-center flex flex-wrap items-center justify-center gap-6 border-t border-neutral-100 pt-6">
           <div className="flex items-center gap-3">
              <div className="w-4 h-4 bg-neutral-900 rounded-sm shadow-sm"></div>
-             <span className="text-base text-neutral-600 uppercase tracking-widest font-bold">Indexed Baseline</span>
+             <span className="text-xs md:text-sm text-neutral-600 uppercase tracking-widest font-bold">Indexed Baseline</span>
           </div>
           <div className="flex items-center gap-3">
              <div className="w-4 h-4 bg-red-600 rounded-sm shadow-sm"></div>
-             <span className="text-base text-neutral-600 uppercase tracking-widest font-bold">Conservative Increments</span>
+             <span className="text-xs md:text-sm text-neutral-600 uppercase tracking-widest font-bold">Conservative Increments</span>
           </div>
       </div>
     </div>
@@ -490,26 +526,42 @@ export default function OgilvyPitchDeck() {
     }
   ];
 
+  // Updated Data Structure: Changed to exact requested bullet points
   const goals = [
     { 
       item: "Commercials", 
       weight: "30%",
-      desc: "Overall growth, shifting revenue mix towards digital-first systems, and protecting/expanding margins."
+      points: [
+        "Drive Overall growth",
+        "Shift revenue mix to digital-first",
+        "Protect and expand margins"
+      ]
     },
     { 
       item: "Clients", 
       weight: "30%",
-      desc: "Transformation of the Top 20 accounts. Mapping and capturing lost digital share of wallet (SoW)."
+      points: [
+        "Transform Top 20 Ogilvy accounts",
+        "Map & capture lost digital Share of Wallet"
+      ]
     },
     { 
       item: "Capability", 
       weight: "20%",
-      desc: "Hiring next-gen talent, building deep digital strength across regional offices, and integrating media/AI pods."
+      points: [
+        "Hire next-gen creative and creator talent",
+        "Build deep regional digital strength",
+        "Integrate Grey media & AI pods"
+      ]
     },
     { 
       item: "Content & Culture", 
       weight: "20%",
-      desc: "Creative quality quantified: Win major digital effectiveness awards, elevate short-form craft, establish market position and thought leadership."
+      points: [
+        "Win major digital effectiveness awards",
+        "Elevate native short-form craft",
+        "Establish market position & leadership"
+      ]
     }
   ];
 
@@ -571,7 +623,7 @@ export default function OgilvyPitchDeck() {
   return (
     <div className="bg-[#fafafa] text-black font-sans selection:bg-red-600 selection:text-white overflow-x-hidden">
       
-      {/* Global CSS for hide-scrollbar and custom typography */}
+      {/* Global CSS for hide-scrollbar, custom typography, and animations */}
       <style dangerouslySetInnerHTML={{__html: `
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -579,6 +631,8 @@ export default function OgilvyPitchDeck() {
         .stark-panel { background: #ffffff; border: 1px solid #e5e5e5; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
         .elegant-table th, .elegant-table td { padding: 1.5rem; text-align: left; vertical-align: top; border-bottom: 1px solid #e5e5e5; }
         .elegant-table th { font-weight: bold; color: #000; font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid #dc2626; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
       `}} />
 
       {/* --- HERO SECTION --- */}
@@ -1240,7 +1294,7 @@ export default function OgilvyPitchDeck() {
 
       {/* --- GOAL SHEET / THE ASK --- */}
       <section className="py-32 px-6 md:px-24 bg-[#fafafa]">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           
           <Reveal>
             <div className="text-center mb-16">
@@ -1258,27 +1312,30 @@ export default function OgilvyPitchDeck() {
           </Reveal>
 
           <Reveal delay={200}>
-             <div className="bg-white border border-neutral-200 rounded-2xl overflow-hidden shadow-sm">
-                <div className="overflow-x-auto">
-                   <table className="w-full elegant-table">
-                      <thead>
-                         <tr>
-                            <th className="w-[25%] md:w-[20%]">Goal</th>
-                            <th className="w-[50%] md:w-[60%]">Responsibilities</th>
-                            <th className="w-[25%] md:w-[20%]">Weightage</th>
-                         </tr>
-                      </thead>
-                      <tbody>
-                         {goals.map((goal, idx) => (
-                           <tr key={idx} className="hover:bg-neutral-50 transition-colors">
-                              <td className="font-bold text-black text-base md:text-lg">{goal.item}</td>
-                              <td className="text-neutral-600 leading-relaxed text-sm md:text-base">{goal.desc}</td>
-                              <td className="text-2xl md:text-3xl font-editorial font-bold text-red-600">{goal.weight}</td>
-                           </tr>
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+               {goals.map((goal, idx) => (
+                 <div key={idx} className="bg-white border border-neutral-200 rounded-2xl p-6 md:p-8 shadow-sm h-full flex flex-col relative overflow-hidden">
+                    {/* Minimal Red Top Accent */}
+                    <div className="absolute top-0 left-0 w-full h-1 bg-red-600" />
+                    
+                    <div className="flex justify-between items-start mb-6 pb-6 border-b border-neutral-100">
+                       <h4 className="text-xl md:text-2xl font-bold text-black">{goal.item}</h4>
+                       <span className="text-2xl md:text-3xl font-editorial font-bold text-red-600">{goal.weight}</span>
+                    </div>
+                    
+                    <div className="flex-1">
+                       <p className="text-xs font-bold tracking-widest text-neutral-400 uppercase mb-4">Responsibilities</p>
+                       <ul className="space-y-4">
+                         {goal.points.map((point, i) => (
+                           <li key={i} className="flex items-start gap-3 text-neutral-600 text-sm md:text-base leading-relaxed">
+                              <CheckCircle2 className="w-5 h-5 text-red-600 shrink-0 mt-0.5 opacity-80" />
+                              <span>{point}</span>
+                           </li>
                          ))}
-                      </tbody>
-                   </table>
-                </div>
+                       </ul>
+                    </div>
+                 </div>
+               ))}
              </div>
           </Reveal>
         </div>
