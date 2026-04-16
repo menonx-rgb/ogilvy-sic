@@ -961,18 +961,15 @@ export default function OgilvyPitchDeck() {
           </Reveal>
 
           <Reveal delay={200}>
-            <div className="bg-white border border-neutral-200 rounded-3xl p-8 md:p-12 shadow-xl overflow-x-auto relative">
-               {/* Visual Trick: Truncating the Y-axis to start at 90 instead of 0. 
-                 This magnifies the growth steps visually so ExCo can immediately see the impact.
-                 Range is 90 to 130 (Total 40 units). 
-               */}
-               <div className="min-w-[900px] h-[480px] relative flex items-end justify-between px-8 pb-24 pt-20 mt-4 overflow-visible">
+            <div className="bg-white border border-neutral-200 rounded-2xl md:rounded-3xl p-4 sm:p-8 md:p-12 shadow-xl overflow-x-auto relative">
+               {/* Container proportionally sized for mobile scaling */}
+               <div className="min-w-[550px] md:min-w-[900px] h-[300px] md:h-[480px] relative flex items-end justify-between px-4 md:px-8 pb-20 md:pb-24 pt-12 md:pt-20 mt-4 overflow-visible">
                   
                   {/* Y-Axis Grid Lines */}
-                  <div className="absolute inset-0 px-8 pb-24 pt-20 pointer-events-none flex flex-col justify-between z-0">
+                  <div className="absolute inset-0 px-4 md:px-8 pb-20 md:pb-24 pt-12 md:pt-20 pointer-events-none flex flex-col justify-between z-0">
                      {[130, 120, 110, 100, 90].map((val, i) => (
                         <div key={i} className="w-full border-t border-neutral-100 relative transition-all duration-500 hover:border-neutral-200">
-                           {val >= 90 && <span className="absolute -left-6 -top-3 text-xs text-neutral-400 font-mono">{val}</span>}
+                           {val >= 90 && <span className="absolute -left-2 md:-left-6 -top-3 text-[10px] md:text-xs text-neutral-400 font-mono">{val}</span>}
                         </div>
                      ))}
                   </div>
@@ -986,14 +983,14 @@ export default function OgilvyPitchDeck() {
                     { label: "Media Teams", desc: "Integrated media teams", value: 2, display: "+2", height: 5, bottom: 82.5, color: "bg-red-600", isTotal: false },
                     { label: "Growth Target", desc: "~25% Incremental", value: 125, display: "125", height: 87.5, bottom: 0, color: "bg-black", isTotal: true }
                   ].map((bar, idx) => (
-                     <div key={idx} className="relative flex flex-col items-center w-32 md:w-36 group z-10 cursor-default">
+                     <div key={idx} className="relative flex flex-col items-center w-16 sm:w-20 md:w-32 lg:w-36 group z-10 cursor-default">
                         
-                        {/* Huge Value Label Above Bar */}
+                        {/* Scaled Value Label Above Bar */}
                         <div 
-                           className="absolute w-full text-center transition-all duration-500 ease-out group-hover:-translate-y-3"
+                           className="absolute w-full text-center transition-all duration-500 ease-out group-hover:-translate-y-2 md:group-hover:-translate-y-3"
                            style={{ bottom: `${bar.bottom + bar.height}%`, paddingBottom: '16px' }}
                         >
-                           <span className={`text-3xl md:text-4xl font-editorial font-bold transition-all duration-300 ${bar.isTotal ? 'text-black group-hover:drop-shadow-md' : 'text-red-600 group-hover:text-red-500 group-hover:drop-shadow-[0_4px_8px_rgba(220,38,38,0.3)]'}`}>
+                           <span className={`text-xl sm:text-2xl md:text-3xl lg:text-4xl font-editorial font-bold transition-all duration-300 ${bar.isTotal ? 'text-black group-hover:drop-shadow-md' : 'text-red-600 group-hover:text-red-500 group-hover:drop-shadow-[0_4px_8px_rgba(220,38,38,0.3)]'}`}>
                               {bar.display}
                            </span>
                         </div>
@@ -1008,10 +1005,10 @@ export default function OgilvyPitchDeck() {
                         >
                            {/* Infinite horizontal dashed guide line to visually connect steps */}
                            {!bar.isTotal && (
-                              <div className="absolute top-0 left-0 w-[900px] border-t-2 border-dashed border-red-200/60 z-[-1] opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                              <div className="absolute top-0 left-0 w-[550px] md:w-[900px] border-t-2 border-dashed border-red-200/60 z-[-1] opacity-50 group-hover:opacity-100 transition-opacity duration-300"></div>
                            )}
                            {bar.isTotal && idx === 0 && (
-                              <div className="absolute top-0 left-0 w-[900px] border-t-2 border-dashed border-neutral-300 z-[-1] opacity-50"></div>
+                              <div className="absolute top-0 left-0 w-[550px] md:w-[900px] border-t-2 border-dashed border-neutral-300 z-[-1] opacity-50"></div>
                            )}
                            
                            {/* Active hover indicator inside bar */}
@@ -1020,12 +1017,12 @@ export default function OgilvyPitchDeck() {
                            )}
                         </div>
 
-                        {/* X-Axis Premium Info Card */}
-                        <div className="absolute -bottom-24 text-center w-[110%] bg-neutral-50 border border-neutral-200 p-3 rounded-xl shadow-sm transition-all duration-300 ease-out group-hover:border-red-300 group-hover:bg-white group-hover:shadow-lg group-hover:-translate-y-2 z-20">
-                           <span className={`text-[10px] md:text-xs font-bold uppercase tracking-wider block mb-1 transition-colors ${bar.isTotal ? 'text-black' : 'text-red-700'}`}>
+                        {/* X-Axis Scaled Premium Info Card */}
+                        <div className="absolute -bottom-16 md:-bottom-24 text-center w-[130%] md:w-[110%] bg-neutral-50 border border-neutral-200 p-2 md:p-3 rounded-lg md:rounded-xl shadow-sm transition-all duration-300 ease-out group-hover:border-red-300 group-hover:bg-white group-hover:shadow-lg group-hover:-translate-y-1 md:group-hover:-translate-y-2 z-20">
+                           <span className={`text-[8px] sm:text-[9px] md:text-[10px] lg:text-xs font-bold uppercase tracking-wider block mb-0.5 md:mb-1 transition-colors ${bar.isTotal ? 'text-black' : 'text-red-700'}`}>
                               {bar.label}
                            </span>
-                           <span className="text-[11px] text-neutral-500 font-medium leading-tight block group-hover:text-neutral-700 transition-colors">
+                           <span className="text-[8px] md:text-[11px] text-neutral-500 font-medium leading-tight block group-hover:text-neutral-700 transition-colors">
                               {bar.desc}
                            </span>
                         </div>
@@ -1243,22 +1240,25 @@ export default function OgilvyPitchDeck() {
              <div className="space-y-4">
                 {goals.map((goal, idx) => (
                   <Reveal key={idx} delay={200 + (idx * 100)} direction="up">
-                    <div className="group flex flex-col md:flex-row md:items-center justify-between p-6 md:p-8 rounded-2xl hover:bg-red-50/50 border border-neutral-100 hover:border-red-100 transition-all duration-300 cursor-default relative overflow-hidden gap-6">
+                    <div className="group flex flex-col md:flex-row md:items-center justify-between p-4 sm:p-6 md:p-8 rounded-2xl border border-neutral-100 transition-all duration-300 cursor-default relative overflow-hidden gap-4 md:gap-6
+                       bg-neutral-50/30 hover:bg-neutral-50/80
+                       hover:border-red-300 hover:shadow-[0_0_20px_rgba(220,38,38,0.1)]
+                       after:absolute after:inset-0 after:bg-gradient-to-r after:from-red-500/0 after:via-red-500/0 after:to-red-500/0 after:hover:from-red-500/[0.03] after:hover:via-red-500/[0.05] after:hover:to-red-500/0 after:pointer-events-none after:transition-all after:duration-500">
                        
-                       <div className="flex items-start gap-4 relative z-10 flex-1">
-                          <div className="w-2 h-2 rounded-full bg-neutral-300 group-hover:bg-red-500 transition-colors mt-2.5 shrink-0" />
-                          <div>
-                             <span className="text-xl md:text-2xl font-bold text-black group-hover:text-red-600 transition-colors block mb-2">
+                       <div className="flex items-start gap-3 md:gap-4 relative z-10 flex-1">
+                          <div className="w-2 h-2 md:w-2.5 md:h-2.5 rounded-full bg-neutral-300 group-hover:bg-red-500 transition-all duration-300 mt-2 md:mt-2.5 shrink-0 group-hover:scale-125" />
+                          <div className="flex-1">
+                             <span className="text-lg sm:text-xl md:text-2xl font-bold text-black group-hover:text-red-600 transition-colors duration-300 block mb-1 md:mb-2">
                                {goal.item}
                              </span>
-                             <p className="text-neutral-500 text-sm md:text-base leading-relaxed pr-8">
+                             <p className="text-neutral-500 text-sm md:text-base leading-relaxed group-hover:text-neutral-700 transition-colors duration-300">
                                {goal.desc}
                              </p>
                           </div>
                        </div>
 
-                       <div className="relative z-10 flex items-center gap-6 md:shrink-0 md:pl-8 md:border-l border-neutral-200 group-hover:border-red-200 transition-colors">
-                          <span className="text-3xl md:text-4xl font-editorial font-bold text-neutral-300 group-hover:text-red-600 transition-colors">
+                       <div className="relative z-10 flex items-center gap-4 md:gap-6 md:shrink-0 md:pl-6 md:border-l border-neutral-200 group-hover:border-red-300 transition-colors duration-300">
+                          <span className="text-2xl sm:text-3xl md:text-4xl font-editorial font-bold text-neutral-300 group-hover:text-red-600 transition-all duration-300 group-hover:scale-110 origin-center">
                             {goal.weight}
                           </span>
                        </div>
